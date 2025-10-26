@@ -1,0 +1,9 @@
+{
+  "snippets.ultisnips.pythonPrompt": false,
+  "markdownlint.config": {
+    "MD022": false,
+    "MD013": false,
+    "MD007":false,
+  }
+}
+
