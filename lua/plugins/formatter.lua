@@ -24,6 +24,8 @@ return {
             "$FILENAME",
             "--config",
             os.getenv("HOME") .. "/dotfiles/nvim/config_files/prettierrc.json",
+            "--print-width",
+            "9999",
             "--log-level",
             "silent",
           },
@@ -65,6 +67,8 @@ return {
         graphql = {
           "custom_prettier",
         },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
         lua = {
           "custom_stylua",
         },
@@ -76,12 +80,16 @@ return {
           -- To organize the imports.
           "ruff_organize_imports",
         },
+        kotlin = { "ktlint" },
         toml = { "taplo" },
       },
-      format_on_save = {
-        timeout_ms = 500,
-        lsp_fallback = "fallback",
-      },
+      format_on_save = function(bufnr)
+        local ft = vim.bo[bufnr].filetype
+        if ft == "c" or ft == "cpp" then
+          return
+        end
+        return { timeout_ms = 500, lsp_fallback = "fallback" }
+      end,
       log_level = vim.log.levels.ERROR,
       notify_on_error = true,
       notify_no_formatters = true,

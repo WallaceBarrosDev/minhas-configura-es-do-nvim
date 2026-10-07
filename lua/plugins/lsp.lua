@@ -5,7 +5,6 @@ return {
     "neoclide/coc.nvim",
     branch = "release",
     config = function()
-      -- Define onde o plugin deve instalar extensões do CoC
       vim.g.coc_global_extensions = {
         "coc-json",
         "coc-tsserver",
@@ -17,32 +16,64 @@ return {
         "coc-vetur",
         "coc-angular",
         "coc-phpactor",
-        "coc-clangd",
         "coc-markdownlint",
         "coc-prettier",
         "coc-snippets",
-        -- adicione aqui outras extensões que desejar
+        "coc-solidity",
+        -- coc-go removido para usar nvim-lspconfig
       }
 
-      -- Mapeamentos padrão do CoC
       vim.cmd([[
-      " Use <Tab> e <S-Tab> para navegar pelas sugestões
       inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
       inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
-      " Confirmar sugestão com <CR>
       inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"
-      ]])
-
-      -- Configurações de diagnóstico e hover
-      vim.cmd([[
-      " Mostrar diagnósticos na linha
-      autocmd CursorHold * silent call CocActionAsync('diagnosticRefresh')
-
-      " Habilitar hover
       nnoremap <silent> K :call CocActionAsync('doHover')<CR>
       ]])
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "cobol", "cbl", "cpy" },
+        callback = function()
+          vim.b.coc_diagnostic_disable = true
+          vim.g.coc_notification_disable = true
+        end,
+      })
     end,
-  }
+  },
+
+  -- Mason LSP installer
+  {
+    "williamboman/mason.nvim",
+    priority = 900,
+    config = function()
+      require("mason").setup()
+    end,
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    config = function()
+      require("mason-lspconfig").setup({
+        ensure_installed = { "gopls", "clangd", "pyright" },
+      })
+    end,
+  },
+  {
+    "neovim/nvim-lspconfig",
+    config = function()
+      -- Go
+      vim.lsp.config("gopls", {})
+      vim.lsp.enable("gopls")
+
+      -- C/C++
+      vim.lsp.config("clangd", {
+        cmd = { "clangd", "--background-index", "--clang-tidy" },
+      })
+      vim.lsp.enable("clangd")
+
+      -- Python
+      vim.lsp.config("pyright", {})
+      vim.lsp.enable("pyright")
+    end,
+  },
 }
 
