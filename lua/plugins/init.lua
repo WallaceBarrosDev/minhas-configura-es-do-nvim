@@ -9,6 +9,7 @@ return {
   { import = "plugins.which-key" },
   { import = "plugins.lsp" },
   { import = "plugins.cmp" },
+  { import = "plugins.kotlin" },
   { import = "plugins.bufferline" },
   { import = "plugins.ai-completion" },
   { import = "plugins.avante" },

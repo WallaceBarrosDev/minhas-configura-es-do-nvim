@@ -8,6 +8,9 @@ return {
     require("mason").setup()
     require("mason-lspconfig").setup({
       ensure_installed = { "lua_ls", "ts_ls", "pyright" },
+      -- kotlin_lsp é excluído: quem o inicia é o kotlin.nvim (com o handler
+      -- de workspace/configuration que o servidor exige)
+      automatic_enable = { exclude = { "kotlin_lsp" } },
     })
 
     -- Capabilities globais: injeta completions do nvim-cmp em todos os servidores
@@ -16,6 +19,14 @@ return {
       capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
     end)
     vim.lsp.config("*", { capabilities = capabilities })
+
+    -- Kotlin: o kotlin.nvim (lua/plugins/kotlin.lua) é quem inicia e
+    -- configura o cliente do kotlin-lsp da JetBrains — NÃO habilite
+    -- "kotlin_lsp" aqui: um cliente do lspconfig nasce sem o handler de
+    -- workspace/configuration e mata inlay hints/settings do plugin.
+    -- O fwcd/kotlin_language_server (deprecado) ainda está no mason;
+    -- desligado para não disputar o filetype.
+    vim.lsp.enable("kotlin_language_server", false)
 
     -- Como os diagnósticos aparecem (símbolo + mensagem inline + float)
     vim.diagnostic.config({

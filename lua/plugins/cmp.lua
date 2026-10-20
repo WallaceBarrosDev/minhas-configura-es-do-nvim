@@ -12,6 +12,21 @@ return {
     local cmp = require("cmp")
     -- Snippets prontos por filetype (html, css, js, ...)
     require("luasnip.loaders.from_vscode").lazy_load()
+
+    -- Snippets custom de Kotlin: completions de top-level (println) são
+    -- um problema do kotlin-language-server da comunidade; printing garante
+    -- o atalho independente do LSP
+    local ls = require("luasnip")
+    local s, t, i = ls.snippet, ls.text_node, ls.insert_node
+    ls.add_snippets("kotlin", {
+      s({ trig = "println", dscr = "println(\"...\")" }, {
+        t('println("'), i(1), t('")'),
+      }),
+      s({ trig = "print", dscr = "print(...)" }, {
+        t("print("), i(1), t(")"),
+      }),
+    })
+
     cmp.setup({
       snippet = {
         expand = function(args)
