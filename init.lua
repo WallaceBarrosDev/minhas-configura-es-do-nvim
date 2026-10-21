@@ -37,5 +37,6 @@ vim.opt.sidescrolloff = 8
 
 -- Carrega configurações modulares
 require("config.options")
+require("config.tokens")
 require("config.lazy")
 require("keymaps")
