@@ -17,6 +17,9 @@ return {
       vim.api.nvim_set_hl(0, "@variable", { fg = "#32dbbc" })
       -- tokens semânticos do LSP (clangd) têm prioridade sobre treesitter
       vim.api.nvim_set_hl(0, "@lsp.type.variable", { fg = "#32dbbc" })
+      -- propriedades/campos: dourado suave, oposto ao teal das variáveis
+      vim.api.nvim_set_hl(0, "@property", { fg = "#f2c866" })
+      vim.api.nvim_set_hl(0, "@lsp.type.property", { fg = "#f2c866" })
     end
     vim.api.nvim_create_autocmd("ColorScheme", {
       pattern = "*",
