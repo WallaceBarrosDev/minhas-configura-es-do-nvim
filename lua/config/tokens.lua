@@ -5,15 +5,20 @@
 -- Para adicionar outra estrutura: insere { padrao_vimregex, "GrupoHL" }
 -- na lista do filetype e define a cor em M.groups.
 
+-- filetype -> lista de { padrao, grupo } (padrao em regex do vim, modo \v)
+-- estruturas de template usadas no C (html gerado em strings) e em .html
+local template_rules = {
+  { [[\v\{\{.{-}\}\}]], "TemplateExpr" }, -- {{ ... }}
+  { [[\v\{[%%].{-}[%%]\}]], "TemplateStmt" }, -- {% ... %} ([%%] = escape de % na regex)
+}
 local M = {}
 
 -- filetype -> lista de { padrao, grupo } (padrao em regex do vim, modo \v)
-M.rules = {
-  html = {
-    { [[\v\{\{.{-}\}\}]], "TemplateExpr" }, -- {{ ... }}
-    { [[\v\{[%%].{-}[%%]\}]], "TemplateStmt" }, -- {% ... %} ([%%] = escape de % na regex)
-  },
-}
+M.rules = {}
+for _, ft in ipairs({ "html", "c", "cpp", "h", "hpp" }) do
+  M.rules[ft] = template_rules
+end
+
 
 -- estilo dos grupos (reaplicado ao trocar de colorscheme)
 M.groups = {
