@@ -14,9 +14,9 @@ return {
     -- Nomes de variáveis com cor própria (char/type/etc continuam
     -- destacados); reaplica ao trocar de colorscheme
     local hl = function()
-      vim.api.nvim_set_hl(0, "@variable", { fg = "#ffdd57" })
+      vim.api.nvim_set_hl(0, "@variable", { fg = "#e561ff" })
       -- tokens semânticos do LSP (clangd) têm prioridade sobre treesitter
-      vim.api.nvim_set_hl(0, "@lsp.type.variable", { fg = "#ffdd57" })
+      vim.api.nvim_set_hl(0, "@lsp.type.variable", { fg = "#e561ff" })
     end
     vim.api.nvim_create_autocmd("ColorScheme", {
       pattern = "*",
