@@ -1,48 +1,68 @@
--- ~/.config/nvim/lua/plugins/lsp.lua
 return {
-  -- Configuração com CoC (Conquer of Completion)
-  {
-    "neoclide/coc.nvim",
-    branch = "release",
-    config = function()
-      -- Define onde o plugin deve instalar extensões do CoC
-      vim.g.coc_global_extensions = {
-        "coc-json",
-        "coc-tsserver",
-        "coc-html",
-        "coc-css",
-        "coc-pyright",
-        "coc-phpls",
-        "coc-java",
-        "coc-vetur",
-        "coc-angular",
-        "coc-phpactor",
-        "coc-clangd",
-        "coc-markdownlint",
-        "coc-prettier",
-        "coc-snippets",
-        -- adicione aqui outras extensões que desejar
-      }
+  "neovim/nvim-lspconfig",
+  dependencies = {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+  },
+  config = function()
+    require("mason").setup()
+    require("mason-lspconfig").setup({
+      ensure_installed = { "lua_ls", "ts_ls", "pyright" },
+      -- kotlin_lsp é excluído: quem o inicia é o kotlin.nvim (com o handler
+      -- de workspace/configuration que o servidor exige)
+      automatic_enable = { exclude = { "kotlin_lsp" } },
+    })
 
-      -- Mapeamentos padrão do CoC
-      vim.cmd([[
-      " Use <Tab> e <S-Tab> para navegar pelas sugestões
-      inoremap <silent><expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-      inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    -- Capabilities globais: injeta completions do nvim-cmp em todos os servidores
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    pcall(function()
+      capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+    end)
+    vim.lsp.config("*", { capabilities = capabilities })
 
-      " Confirmar sugestão com <CR>
-      inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"
-      ]])
+    -- Kotlin: o kotlin.nvim (lua/plugins/kotlin.lua) é quem inicia e
+    -- configura o cliente do kotlin-lsp da JetBrains — NÃO habilite
+    -- "kotlin_lsp" aqui: um cliente do lspconfig nasce sem o handler de
+    -- workspace/configuration e mata inlay hints/settings do plugin.
+    -- O fwcd/kotlin_language_server (deprecado) ainda está no mason;
+    -- desligado para não disputar o filetype.
+    vim.lsp.enable("kotlin_language_server", false)
 
-      -- Configurações de diagnóstico e hover
-      vim.cmd([[
-      " Mostrar diagnósticos na linha
-      autocmd CursorHold * silent call CocActionAsync('diagnosticRefresh')
+    -- Como os diagnósticos aparecem (símbolo + mensagem inline + float)
+    vim.diagnostic.config({
+      virtual_text = true,
+      signs = true,
+      underline = true,
+      update_in_insert = false,
+      severity_sort = true,
+      float = { border = "rounded", source = "if_many" },
+    })
 
-      " Habilitar hover
-      nnoremap <silent> K :call CocActionAsync('doHover')<CR>
-      ]])
-    end,
-  }
+    -- Mostra o erro do cursor automaticamente ao ficar parado,
+    -- fechando o float quando o cursor sai da linha
+    local diag_float_win = nil
+    local function close_diag_float()
+      if diag_float_win and vim.api.nvim_win_is_valid(diag_float_win) then
+        pcall(vim.api.nvim_win_close, diag_float_win, true)
+      end
+      diag_float_win = nil
+    end
+
+    vim.api.nvim_create_autocmd("CursorHold", {
+      pattern = "*",
+      callback = function()
+        -- pcall traz dois valores de open_float: (float_bufnr, winid)
+        local ok, _float_bufnr, float_win = pcall(vim.diagnostic.open_float, nil, { focus = false, scope = "line" })
+        if ok and float_win then
+          diag_float_win = float_win
+        else
+          close_diag_float()
+        end
+      end,
+    })
+    vim.api.nvim_create_autocmd("CursorMoved", {
+      pattern = "*",
+      callback = close_diag_float,
+    })
+  end,
 }
-

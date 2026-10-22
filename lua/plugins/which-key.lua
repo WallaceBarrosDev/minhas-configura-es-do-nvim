@@ -1,12 +1,12 @@
--- Exemplo no seu arquivo de plugins, tipo plugins.lua
-
 return {
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",  -- ou "VimEnter", pra carregar quando abrir
-    config = function()
-      require("which-key").setup({})
-    end,
+  "folke/which-key.nvim",
+  event = "VeryLazy",
+  init = function()
+    vim.o.timeout = true
+    vim.o.timeoutlen = 300
+  end,
+  opts = {
+    preset = "modern",
+    delay = 200,
   },
-  -- outros plugins...
 }

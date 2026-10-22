@@ -1,15 +1,7 @@
--- lua/plugins/telescope.lua
-
 return {
   "nvim-telescope/telescope.nvim",
-  tag = "0.1.8",
-  dependencies = {
-    "nvim-lua/plenary.nvim",
-    "crispgm/telescope-heading.nvim",
-  },
-  extensions = {
-    heading = {
-      treesitter = true,
-    },
-  },
+  dependencies = { "nvim-lua/plenary.nvim" },
+  config = function()
+    require("telescope").setup({})
+  end,
 }
